@@ -56,6 +56,10 @@ public class Vision extends SubsystemBase {
     }
   }
 
+  private void WhereRWe(){
+
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -76,5 +80,7 @@ public class Vision extends SubsystemBase {
     for(VisionTarget vt : Targets){
       if(vt != null) vt.periodic();
     }
+
+    WhereRWe();
   }
 }
