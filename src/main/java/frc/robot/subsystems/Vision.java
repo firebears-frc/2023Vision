@@ -61,12 +61,14 @@ public class Vision extends SubsystemBase {
     // This method will be called once per scheduler run
     PhotonPipelineResult result = Camera.getLatestResult();
     if(result.hasTargets()){
+      SmartDashboard.putBoolean("PhotonVision Active", true);
       for(PhotonTrackedTarget target : result.getTargets()){
         if(Targets.length < (target.getFiducialId()-1) && Targets[target.getFiducialId()] != null){
           Targets[target.getFiducialId()].HasSeenTarget(target.getFiducialId(),target.getBestCameraToTarget());
         }
       }
     }
+    SmartDashboard.putBoolean("PhotonVision Active", false);
 
     for(VisionTarget vt : Targets){
       if(vt != null) vt.periodic();
