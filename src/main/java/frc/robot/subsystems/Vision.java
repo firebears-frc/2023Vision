@@ -26,15 +26,16 @@ public class Vision extends SubsystemBase {
     }
 
     public boolean HasSeenTarget(int TargetID,Transform3d TargetTransform){
+      SmartDashboard.putString(String.format("%d Active", FID), "No");
       if(TargetID == FID){
         TargetTrans = TargetTransform;
+        SmartDashboard.putString(String.format("%d Active", FID), "Yes");
         return true;
       }
       return false;
     }
 
     public void periodic(){
-      
       if(TargetTrans != null) {
         SmartDashboard.putString(String.format("%d Target", FID), TargetTrans.getX() + "," + TargetTrans.getY() + ',' + TargetTrans.getZ());
       }
@@ -50,25 +51,27 @@ public class Vision extends SubsystemBase {
   /** Creates a new Vision. */
   public Vision(String CamName) {
     Camera = new PhotonCamera(CamName);
-    Targets[0] = new VisionTarget(0);
-    Targets[1] = new VisionTarget(1);
-    Targets[2] = new VisionTarget(6);
-    Targets[3] = new VisionTarget(4);
+    for (int i=0; i<7; ++i) {
+      Targets[i] = new VisionTarget(i);
+    }
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    SmartDashboard.putBoolean("PhotonVision Works", Camera.isConnected());
+    
     PhotonPipelineResult result = Camera.getLatestResult();
     if(result.hasTargets()){
       SmartDashboard.putBoolean("PhotonVision Active", true);
       for(PhotonTrackedTarget target : result.getTargets()){
-        if(Targets.length < (target.getFiducialId()-1) && Targets[target.getFiducialId()] != null){
+        if(target.getFiducialId() < Targets.length && Targets[target.getFiducialId()] != null){
           Targets[target.getFiducialId()].HasSeenTarget(target.getFiducialId(),target.getBestCameraToTarget());
         }
       }
     }
-    SmartDashboard.putBoolean("PhotonVision Active", false);
+    else SmartDashboard.putBoolean("PhotonVision Active", false);
 
     for(VisionTarget vt : Targets){
       if(vt != null) vt.periodic();
