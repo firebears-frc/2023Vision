@@ -34,7 +34,6 @@ public class Vision extends SubsystemBase {
     }
 
     public void periodic(){
-      
       if(TargetTrans != null) {
         SmartDashboard.putString(String.format("%d Target", FID), TargetTrans.getX() + "," + TargetTrans.getY() + ',' + TargetTrans.getZ());
       }
@@ -56,6 +55,10 @@ public class Vision extends SubsystemBase {
     Targets[3] = new VisionTarget(4);
   }
 
+  private void WhereRWe(){
+
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -68,10 +71,12 @@ public class Vision extends SubsystemBase {
         }
       }
     }
-    SmartDashboard.putBoolean("PhotonVision Active", false);
+    else SmartDashboard.putBoolean("PhotonVision Active", false);
 
     for(VisionTarget vt : Targets){
       if(vt != null) vt.periodic();
     }
+
+    WhereRWe();
   }
 }
