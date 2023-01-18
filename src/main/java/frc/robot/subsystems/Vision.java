@@ -7,29 +7,51 @@ package frc.robot.subsystems;
 import java.lang.annotation.Target;
 import java.text.Format;
 
+import org.ejml.dense.block.VectorOps_FDRB;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Vision extends SubsystemBase {
+  private Double Round(Double x){
+    return Math.round(x * 100.0) / 100.0;
+  }
+  private class Vector2D {
+    private int x;
+    private int y;
+
+    public int getX() { return x; }
+    public int getY() { return y; }
+
+    public Vector2D(int nx,int ny){
+      x = nx;
+      y = ny;
+    }
+
+    public void setVector(int nx,int ny){
+      x = nx;
+      y = ny;
+    }
+  }
   private class VisionTarget {
     private int FID = -1;
     private Transform3d TargetTrans;
+    private Vector2D TargetGlobalPos;
+    private float LastSeen;
   
-    public VisionTarget(int ID) {
+    public VisionTarget(int ID, int Xcm, int Ycm) {
       FID = ID;
+      TargetGlobalPos = new Vector2D(Xcm, Ycm);
     }
 
-    private Double Round(Double x){
-      return Math.round(x * 100.0) / 100.0;
-    }
-
-    public void HasSeenTarget(Transform3d TargetTransform){
+    public void HasSeenTarget(Transform3d TargetTransform,float LastTimeSaw){
       TargetTrans = TargetTransform;
+      LastSeen = LastTimeSaw;
 
       if(TargetTrans != null) {
         SmartDashboard.putString(String.format("%d Target", FID), Round((Double)TargetTrans.getX()) + "," + Round((Double)TargetTrans.getY()) + ',' + Round((Double)TargetTrans.getZ()));
@@ -42,23 +64,39 @@ public class Vision extends SubsystemBase {
 
   private class VisionMap {
     private VisionTarget[] Targets = new VisionTarget[8];
+    private int LastSeen;
+    private Vector2D OurPosition;
 
     public VisionMap(){
-      Targets[0] = new VisionTarget(0);
-      Targets[1] = new VisionTarget(1);
-      Targets[2] = new VisionTarget(2);
-      Targets[3] = new VisionTarget(3);
-      Targets[4] = new VisionTarget(4);
-      Targets[5] = new VisionTarget(5);
-      Targets[6] = new VisionTarget(6);
-      Targets[7] = new VisionTarget(7);
+      Targets[0] = new VisionTarget(0, -689, 109);
+      Targets[3] = new VisionTarget(3, -689, 280);
+      Targets[5] = new VisionTarget(5, -689, 451);
+      OurPosition = new Vector2D(0, 0);
     }
 
     public void onVisionTargetSeen(PhotonTrackedTarget Target){
       int FID = Target.getFiducialId();
       if(FID < Targets.length){
-        Targets[FID].HasSeenTarget(Target.getBestCameraToTarget());
+        Targets[FID].HasSeenTarget(Target.getBestCameraToTarget(),System.currentTimeMillis());
+        LastSeen = FID;
       }
+
+      //Get / Update Our Position Based On Targets Seen
+      Transform3d pos = Targets[LastSeen].TargetTrans;
+      double x;
+      double y;
+
+      if(Targets[LastSeen].TargetGlobalPos.x < 0){
+        x = Targets[LastSeen].TargetGlobalPos.x + (pos.getX()*100);
+        y = Targets[LastSeen].TargetGlobalPos.y + (pos.getY()*100);
+      }
+      else{
+        x = Targets[LastSeen].TargetGlobalPos.x - (pos.getX()*100);
+        y = Targets[LastSeen].TargetGlobalPos.y - (pos.getY()*100);
+      }
+
+      OurPosition.setVector((int)x, (int)y);
+      SmartDashboard.putString("Our Robot Position", "(" + Round(x) + "cm ," + Round(y) + "cm )");
     }
   }
 
@@ -79,11 +117,7 @@ public class Vision extends SubsystemBase {
     
     PhotonPipelineResult result = Camera.getLatestResult();
     if(result.hasTargets()){
-      SmartDashboard.putBoolean("PhotonVision Active", true);
-      for(PhotonTrackedTarget targ : result.getTargets()){
-        VM.onVisionTargetSeen(targ);
-      }
+      VM.onVisionTargetSeen(result.getBestTarget());
     }
-    else SmartDashboard.putBoolean("PhotonVision Active", false);
   }
 }
