@@ -103,7 +103,7 @@ public class Vision extends SubsystemBase {
 
       OurPosition.setVector((int)x, (int)y);
       SmartDashboard.putString("Our Robot Position", "(" + Round(x) + "cm ," + Round(y) + "cm )");
-      F2d.setRobotPose(new Pose2d((x/100) + 8,y/100,new Rotation2d()));
+      F2d.setRobotPose(new Pose2d((x/100) + 8,y/100,new Rotation2d(180)));
       SmartDashboard.putData(F2d);
 
     }
