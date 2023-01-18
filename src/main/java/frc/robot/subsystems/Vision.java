@@ -13,7 +13,11 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -66,12 +70,14 @@ public class Vision extends SubsystemBase {
     private VisionTarget[] Targets = new VisionTarget[8];
     private int LastSeen;
     private Vector2D OurPosition;
+    private Field2d F2d;
 
     public VisionMap(){
       Targets[0] = new VisionTarget(0, -689, 109);
       Targets[3] = new VisionTarget(3, -689, 280);
       Targets[5] = new VisionTarget(5, -689, 451);
       OurPosition = new Vector2D(0, 0);
+      F2d = new Field2d();
     }
 
     public void onVisionTargetSeen(PhotonTrackedTarget Target){
@@ -97,6 +103,9 @@ public class Vision extends SubsystemBase {
 
       OurPosition.setVector((int)x, (int)y);
       SmartDashboard.putString("Our Robot Position", "(" + Round(x) + "cm ," + Round(y) + "cm )");
+      F2d.setRobotPose(new Pose2d((x/100) + 8,y/100,new Rotation2d()));
+      SmartDashboard.putData(F2d);
+
     }
   }
 
