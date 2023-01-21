@@ -13,6 +13,15 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static final int CHASSIS_FRONT_LEFT_MOTOR_CAN_ID = 2;
+  public static final int CHASSIS_REAR_LEFT_MOTOR_CAN_ID = 3;
+  public static final int CHASSIS_FRONT_RIGHT_MOTOR_CAN_ID = 4;
+  public static final int CHASSIS_REAR_RIGHT_MOTOR_CAN_ID = 5;
+
+  public static final int CHASSIS_STALL_CURRENT_LIMIT = 65;
+  public static final int CHASSIS_FREE_CURRENT_LIMIT = 65;
+  public static final boolean DEBUG = false;
+  
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
