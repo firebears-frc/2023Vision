@@ -27,7 +27,10 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -135,7 +138,7 @@ public class Vision extends SubsystemBase {
     
     try {
       layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
-      poseEstimator = new PhotonPoseEstimator(layout, PoseStrategy.CLOSEST_TO_CAMERA_HEIGHT, Camera, new Transform3d());
+      poseEstimator = new PhotonPoseEstimator(layout, PoseStrategy.CLOSEST_TO_CAMERA_HEIGHT, Camera, new Transform3d(new Translation3d(Units.inchesToMeters(0),Units.feetToMeters(4),Units.feetToMeters(0)),new Rotation3d()));
       
     } catch (IOException e) {
       // TODO Auto-generated catch block
@@ -151,7 +154,7 @@ public class Vision extends SubsystemBase {
     
     PhotonPipelineResult result = Camera.getLatestResult();
     if(result.hasTargets()){
-      VM.onVisionTargetSeen(result.getBestTarget());
+      //VM.onVisionTargetSeen(result.getBestTarget());
       Optional<EstimatedRobotPose> pose = poseEstimator.update();
       if(pose.isPresent()){
         //Pose is valid
